@@ -1,4 +1,5 @@
 - test unitario
+- ddd (arquitetura)
 - docker
 - oauth (jwt)
 - dependency injection ?
