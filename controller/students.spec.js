@@ -32,6 +32,29 @@ describe('getStudents', () => {
         expect(res.json).toHaveBeenCalledWith(studentsData);
     });
 
+    test('should return a list of students from the database', async () => {
+        // Insert some mock data into the in-memory database
+        await Student.create([
+            { name: 'Student 1', roll: '123456', registration: '2023001', subjects: ['Math', 'Science'] },
+            { name: 'Student 2', roll: '789012', registration: '2044151', subjects: ['English', 'Physics'] }
+        ]);
+
+        const req = {}; // Mock request object
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
+        }; // Mock response object
+
+        await getStudents(req, res);
+
+        // Expectations
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(expect.arrayContaining([
+            expect.objectContaining({ name: 'Student 1' }),
+            expect.objectContaining({ name: 'Student 2' })
+        ]));
+    });
+
     test('should handle errors', async () => {
         const errorMessage = 'An error occurred';
         // Mocking the behavior of Student.find() to throw an error
