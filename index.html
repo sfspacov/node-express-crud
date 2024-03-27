@@ -6,6 +6,17 @@
 <title>Enviar Estudante</title>
 <!-- Adicionando Bootstrap CSS -->
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<style>
+/* Estilos adicionais */
+.form-group {
+    text-align: center;
+}
+
+.form-control-sm {
+    width: 50%;
+    margin: auto;
+}
+</style>
 </head>
 <body>
 
@@ -14,22 +25,44 @@
   <form id="studentForm">
     <div class="form-group">
       <label for="name">Nome:</label>
-      <input type="text" class="form-control" id="name" name="name">
+      <input type="text" class="form-control form-control-sm" id="name" name="name">
     </div>
     <div class="form-group">
       <label for="roll">Matrícula:</label>
-      <input type="text" class="form-control" id="roll" name="roll">
+      <input type="text" class="form-control form-control-sm" id="roll" name="roll">
     </div>
     <div class="form-group">
       <label for="registration">Registro:</label>
-      <input type="text" class="form-control" id="registration" name="registration">
+      <input type="text" class="form-control form-control-sm" id="registration" name="registration">
     </div>
     <div class="form-group">
       <label for="subjects">Disciplinas (separadas por vírgula):</label>
-      <input type="text" class="form-control" id="subjects" name="subjects">
+      <input type="text" class="form-control form-control-sm" id="subjects" name="subjects">
     </div>
     <button type="submit" class="btn btn-primary">Enviar</button>
   </form>
+</div>
+<div class="container mt-5">
+  <h2 class="mb-4">Listagem de Estudantes</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th onclick="sortTable(0)">Nome</th>
+        <th onclick="sortTable(1)">Matrícula</th>
+        <th onclick="sortTable(2)">Registro</th>
+        <th onclick="sortTable(3)">Disciplinas</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="studentTableBody">
+      <!-- Conteúdo da tabela será adicionado aqui dinamicamente -->
+    </tbody>
+  </table>
+  <nav aria-label="Page navigation">
+    <ul class="pagination" id="pagination">
+      <!-- Botões de paginação serão adicionados aqui dinamicamente -->
+    </ul>
+  </nav>
 </div>
 
 <!-- Modal de sucesso -->
@@ -46,27 +79,7 @@
         Estudante enviado com sucesso!
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal de erro -->
-<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="errorModalLabel">Erro!</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        Ocorreu um erro ao enviar o estudante. Por favor, tente novamente mais tarde.
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="clearForm()">Fechar</button>
       </div>
     </div>
   </div>
@@ -107,10 +120,93 @@ document.getElementById("studentForm").addEventListener("submit", function(event
   })
   .catch(error => {
     console.error('Erro:', error);
-    // Exibir modal de erro
-    $('#errorModal').modal('show');
+    // Aqui você pode adicionar lógica para lidar com o erro, se necessário
   });
 });
+
+function clearForm() {
+  // Limpar todos os campos do formulário
+  document.getElementById("studentForm").reset();
+}
+
+// Função para ordenar a tabela por coluna
+function sortTable(columnIndex) {
+  const table = document.querySelector('.table');
+  const tbody = table.querySelector('tbody');
+  const rows = tbody.querySelectorAll('tr');
+  const sortedRows = Array.from(rows).sort((a, b) => {
+    const aValue = a.querySelectorAll('td')[columnIndex].textContent.trim();
+    const bValue = b.querySelectorAll('td')[columnIndex].textContent.trim();
+    return aValue.localeCompare(bValue);
+  });
+
+  tbody.innerHTML = '';
+  sortedRows.forEach(row => {
+    tbody.appendChild(row);
+  });
+}
+
+function deleteStudent(roll) {
+  if (confirm('Tem certeza que deseja deletar este estudante?')) {
+    fetch(`http://localhost:9000/students/${roll}`, {
+      method: 'DELETE',
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro ao deletar o estudante');
+      }
+      // Atualizar a tabela após deletar o estudante
+      fetchStudents(1);
+    })
+    .catch(error => {
+      console.error('Erro:', error);
+      // Aqui você pode adicionar lógica para lidar com o erro, se necessário
+    });
+  }
+}
+
+// Função para criar a tabela de itens de estudantes
+function createStudentTable(data) {
+  const tbody = document.getElementById('studentTableBody');
+  tbody.innerHTML = '';
+
+  data.forEach(student => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${student.name}</td>
+      <td>${student.roll}</td>
+      <td>${student.registration}</td>
+      <td>${student.subjects.join(', ')}</td>
+      <td>
+        <button type="button" class="btn btn-danger" onclick="deleteStudent('${student.roll}')">Deletar</button>
+        <button type="button" class="btn btn-primary" onclick="editStudent('${student.roll}')">Editar</button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+// Função para editar um estudante
+function editStudent(roll) {
+  // Implemente a lógica para editar o estudante com base no ID (roll) fornecido
+  // Você pode redirecionar para uma nova página de edição ou abrir um modal de edição
+  console.log('Editar estudante:', roll);
+}
+
+// Função para obter dados dos estudantes e atualizar a tabela
+function fetchStudents(page) {
+  const url = `http://localhost:9000/students?page=${page}&limit=10`; // Endpoint com paginação
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      createStudentTable(data);
+    })
+    .catch(error => {
+      console.error('Erro ao buscar estudantes:', error);
+    });
+}
+
+// Chamada inicial para carregar os dados da página 1
+fetchStudents(1);
 </script>
 
 </body>
