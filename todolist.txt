@@ -1,0 +1,12 @@
+- test unitario/integrado
+- orms
+- postgres
+- docker
+- oauth (jwt)
+- ddd (arquitetura)
+- deploy aws
+- dependency injection ?
+    - https://github.com/microsoft/tsyringe
+
+
+- refazer tudo com TypeScript
