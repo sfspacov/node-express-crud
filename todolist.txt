@@ -1,0 +1,5 @@
+- test unitario
+- docker
+- oauth (jwt)
+- dependency injection ?
+- deploy aws
