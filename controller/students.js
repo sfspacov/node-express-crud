@@ -20,7 +20,6 @@ const getSpecStudent = async (req, res) => {
 }
 
 const createStudent = async (req, res) => {
-    const roll = req.params.roll;
     try {
         const newStudent = await Student.create(req.body);
         res.status(200).json(newStudent);
